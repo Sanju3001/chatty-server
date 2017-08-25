@@ -16,8 +16,10 @@ const server = express()
 // Create the WebSockets server
 const wss = new SocketServer({ server });
 
+// Create a new client object
 let clients = {}
 
+// Create client counter
 let clientCount = 0;
 
 // Set up a callback that will run when a client connects to the server
@@ -27,22 +29,13 @@ let clientCount = 0;
 function broadcast(data) {
   wss.clients.forEach(function each(client) {
     if (client.readyState === client.OPEN) {
-     //if (client !== wss && client.readyState === client.OPEN) {
       client.send(data);
     }
   });
 };
 
-// function count(clients) {
-//   wss.clients.forEach(function each(client) {
-//     if (client.readyState === client.OPEN) {
-//      //if (client !== wss && client.readyState === client.OPEN) {
-//       clientCount++;
-//     }
-//   });
-// };
 
-
+// When connection has been established
 wss.on('connection', (client) => {
 
   console.log('Client connected');
@@ -52,15 +45,13 @@ wss.on('connection', (client) => {
   // Initialize a new client id
   const clientId = uuid();
 
-  //clientConnected(client, clientId);
-
-
-
+  // Handle different types of messages (message or notification)
   client.on('message', function incoming(data) {
 
     let type = JSON.parse(data).type
 
-    console.log("this is server data: ", data)
+    // view the data on terminal
+    console.log("this is React data: ", data)
 
     if (type === "postMessage") {
 
@@ -78,8 +69,6 @@ wss.on('connection', (client) => {
 
     else {
 
-      //let someText = " has changed their name to "
-
       clients = {
         type: "incomingNotification",
         id: clientId,
@@ -92,25 +81,7 @@ wss.on('connection', (client) => {
 
     }
 
-    // console.log(clients)
-    // console.log((JSON.parse(data).username) + " says " + (JSON.parse(data).content) )
-
-    // broadcast(data);
-
   });
-
-
-
-// wss.on('connection', function connection(ws) {
-//   ws.on('message', function incoming(data) {
-//     // Broadcast to everyone else.
-//     wss.clients.forEach(function each(client) {
-//       if (client !== ws && client.readyState === WebSocket.OPEN) {
-//         client.send(data);
-//       }
-//     });
-//   });
-// });
 
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
     client.on('close', () => {
